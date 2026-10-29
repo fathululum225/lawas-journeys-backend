@@ -1,0 +1,35 @@
+{
+  "name": "lawas-journeys-backend",
+  "version": "1.0.0",
+  "description": "REST API for the Lawas Journeys heritage travel booking platform",
+  "main": "server.js",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "migrate": "node database/migrate.js",
+    "seed": "node database/seeders/seed.js",
+    "db:reset": "node database/seeders/seed.js --reset",
+    "smoke": "node scripts/smoke-test.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "keywords": [
+    "travel",
+    "heritage",
+    "booking",
+    "express",
+    "sqlite"
+  ],
+  "license": "UNLICENSED",
+  "dependencies": {
+    "better-sqlite3": "^13.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.9",
+    "express": "^5.3.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
