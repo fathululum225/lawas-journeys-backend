@@ -1,26 +1,28 @@
 'use strict';
 
-const fs = require('node:fs');
-const path = require('node:path');
-const Database = require('better-sqlite3');
-const env = require('./env.config');
+// Paksa Node.js memuat file .env dari folder utama (backend)
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
-const ensureDatabaseDirectory = (databasePath) => {
-  if (databasePath === ':memory:') return;
-  fs.mkdirSync(path.dirname(databasePath), { recursive: true });
-};
+const dns = require('node:dns');
+dns.setDefaultResultOrder('ipv4first'); // Mengatasi error ECONNREFUSED
 
-const createConnection = () => {
-  ensureDatabaseDirectory(env.database.path);
+const { Pool } = require('pg');
 
-  const connection = new Database(env.database.path);
-  connection.pragma('journal_mode = WAL');
-  connection.pragma('foreign_keys = ON');
+// Cek apakah URL terbaca (Pastikan di terminal tertulis TERBACA ✅)
+console.log("👉 Cek URL Database:", process.env.DATABASE_URL ? "TERBACA ✅" : "KOSONG ❌");
 
-  return connection;
-};
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
 
-/** Single shared connection for the whole process. */
-const db = createConnection();
+pool.connect((err, client, release) => {
+  if (err) {
+    return console.error('❌ Error koneksi database:', err.message);
+  }
+  console.log('✅ Berhasil terhubung ke database Supabase (PostgreSQL)!');
+  release();
+});
 
-module.exports = db;
+module.exports = pool;

@@ -2,19 +2,10 @@
 
 const env = require('./config/env.config');
 const db = require('./config/database.config');
-const { runMigrations } = require('./database/migrator');
-const { seedDatabase, isDatabaseEmpty } = require('./database/seeders/seed');
 const createApp = require('./app');
 
-const prepareDatabase = () => {
-  const applied = runMigrations(db);
-  if (applied.length > 0) console.log(`[db] applied migrations: ${applied.join(', ')}`);
-
-  if (env.database.autoSeed && isDatabaseEmpty(db)) {
-    seedDatabase(db);
-    console.log('[db] empty database detected, demo data has been seeded');
-  }
-};
+// FUNGSI prepareDatabase() DAN IMPORT MIGRATOR KITA HAPUS
+// Karena database sudah dimigrasi secara manual ke Supabase
 
 const startServer = () => {
   const server = createApp().listen(env.port, () => {
@@ -37,7 +28,10 @@ const startServer = () => {
   const shutdown = (signal) => {
     console.log(`\n[api] ${signal} received, shutting down`);
     server.close(() => {
-      db.close();
+      // Untuk PostgreSQL (pg), kita menggunakan db.end(), bukan db.close()
+      if (db && typeof db.end === 'function') {
+        db.end(); 
+      }
       process.exit(0);
     });
   };
@@ -46,5 +40,5 @@ const startServer = () => {
   process.on('SIGTERM', () => shutdown('SIGTERM'));
 };
 
-prepareDatabase();
+// Langsung jalankan server tanpa prepareDatabase()
 startServer();
